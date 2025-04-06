@@ -1,0 +1,13 @@
+$TTL 86400
+@       IN      SOA     ns1.serverSRC.com. admin.serverSRC.com. (
+                        2024042001 ; Serial
+                        3600       ; Refresh
+                        1800       ; Retry
+                        604800     ; Expire
+                        86400 )    ; Minimum TTL
+
+@       IN      NS      ns1.serverSRC.com.
+
+; PTR Records
+1       IN      PTR     gateway.serverSRC.com.
+2       IN      PTR     ns1.serverSRC.com.
