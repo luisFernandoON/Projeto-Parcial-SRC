@@ -162,14 +162,14 @@ Teste:
 
 ✅ Status dos Serviços
 Serviço	        IP	            Status	      Testado
-DNS	        192.168.11.10	      ✅          Ativo	✅
-DHCP	    192.168.10.10	      ✅          Ativo	✅
-FTP	        192.168.11.51	      ✅          Ativo	✅
-Firewall	192.168.11.30/10.30	  ✅          Ativo	✅
-LDAP	    192.168.11.60	      ✅          Ativo	✅
-SAMBA	    192.168.11.61	      ✅          Ativo	✅
-Webserver	192.168.11.50	      ✅          Ativo	✅
-Roteador	192.168.11.1/10.1	  ✅          Ativo	✅
+DNS	        192.168.11.10	       ✅          Ativo	✅
+DHCP	    192.168.10.10	         ✅          Ativo	✅
+FTP	        192.168.11.51	       ✅          Ativo	✅
+Firewall	192.168.11.30/10.30	   ✅          Ativo	✅
+LDAP	    192.168.11.60	         ✅          Ativo	✅
+SAMBA	    192.168.11.61	         ✅          Ativo	✅
+Webserver	192.168.11.50	         ✅          Ativo	✅
+Roteador	192.168.11.1/10.1	     ✅          Ativo	✅
 
 
 
