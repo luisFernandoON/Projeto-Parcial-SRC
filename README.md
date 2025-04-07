@@ -52,7 +52,9 @@ FASTFOOD/
 
 ```bash
 # 1. Clone o projeto
-link do repositorio<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+  - https://github.com/luisFernandoON/Projeto-Parcial-SRC.git
+
 cd FASTFOOD
 
 # 2. Suba a infraestrutura
