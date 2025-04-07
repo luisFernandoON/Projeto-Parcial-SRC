@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  dns:
+    build: ./dns
+    container_name: dns
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.10  # DNS
+
+  dhcp:
+    build: ./dhcp
+    container_name: dhcp
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./dhcp/leases:/var/lib/dhcp
+    networks:
+      rede_clientes:
+        ipv4_address: 192.168.10.10  # DHCP
+
+  ubuntu-test:
+    image: ubuntu
+    container_name: ubuntu-test
+    cap_add:
+      - NET_ADMIN
+    command: bash
+    stdin_open: true
+    tty: true
+    networks:
+      rede_clientes:  # Sem IP fixo (dinâmico)
+
+  ftp:
+    build: ./ftp
+    container_name: ftp
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "21:21"
+      - "20:20"
+      - "10090-10100:10090-10100"
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.51  # FTP
+
+  ldap:
+    build: ./ldap
+    container_name: ldap
+    restart: unless-stopped
+    ports:
+      - "389:389"
+      - "636:636"
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.60  # LDAP
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+
+  roteador:
+    build: ./router
+    container_name: roteador
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.254  # Gateway da rede de servidores
+      rede_clientes:
+        ipv4_address: 192.168.10.254  # Gateway da rede de clientes
+
+  samba:
+    build: ./samba
+    container_name: samba
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.61  # SAMBA
+    volumes:
+      - ./samba/public:/samba/public
+
+  webserver:
+    build: ./webserver
+    container_name: webserver
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.50  # Webserver
+    ports:
+      - "8080:80"
+
+  firewall:
+    build: ./firewall
+    container_name: firewall
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.30
+      rede_clientes:
+        ipv4_address: 192.168.10.30
+
+volumes:
+  ldap_data:
+  ldap_config:
+
+networks:
+  rede_servidores:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.11.0/24
+
+  rede_clientes:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
