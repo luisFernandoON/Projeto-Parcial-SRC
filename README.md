@@ -21,19 +21,20 @@ Implementar uma infraestrutura de rede corporativa, simulando um ambiente empres
 
 ## 🧱 Estrutura do Projeto
 
+
 FASTFOOD/ 
-├── dhcp/ 
-├── dns/ 
-├── docs/ 
-├── firewall/ 
-├── ftp/ 
-├── ldap/ 
-├── router/ 
-├── samba/ 
-├── scripts/ 
-├── webserver/ 
-├── docker-compose.yml 
-└── README.md
+  ├── dhcp/ 
+  ├── dns/ 
+  ├── docs/ 
+  ├── firewall/ 
+  ├── ftp/ 
+  ├── ldap/ 
+  ├── router/ 
+  ├── samba/ 
+  ├── scripts/ 
+  ├── webserver/ 
+  ├── docker-compose.yml 
+  └── README.md
 
 
 ---
