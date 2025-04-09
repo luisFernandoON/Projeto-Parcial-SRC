@@ -1,9 +1,20 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install -y iproute2 iputils-ping net-tools iptables
+# Instala ferramentas básicas para roteamento
+RUN apt update && apt install -y \
+    iproute2 \
+    iputils-ping \
+    net-tools \
+    iptables && \
+    apt clean
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Habilita IP forwarding via sysctl (opcional — no host já está ativado)
+RUN echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
 
-CMD ["/start.sh"]
+# Copia o script de entrada
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Define o script como ponto de entrada
+CMD ["/entrypoint.sh"]
 

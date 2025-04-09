@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   dns:
@@ -9,7 +9,7 @@ services:
       - NET_ADMIN
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.10  # DNS
+        ipv4_address: 192.168.11.10
 
   dhcp:
     build: ./dhcp
@@ -22,18 +22,20 @@ services:
       - ./dhcp/leases:/var/lib/dhcp
     networks:
       rede_clientes:
-        ipv4_address: 192.168.10.10  # DHCP
+        ipv4_address: 192.168.10.10
 
   ubuntu-test:
-    image: ubuntu
+    build:
+      context: ./ubuntu-test
+      dockerfile: Dockerfile
     container_name: ubuntu-test
     cap_add:
-      - NET_ADMIN
-    command: bash
-    stdin_open: true
-    tty: true
+      - NET_ADMIN  
     networks:
-      rede_clientes:  # Sem IP fixo (dinâmico)
+      rede_clientes:
+        ipv4_address: 192.168.10.50
+    tty: true
+
 
   ftp:
     build: ./ftp
@@ -47,7 +49,7 @@ services:
       - "10090-10100:10090-10100"
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.51  # FTP
+        ipv4_address: 192.168.11.51
 
   ldap:
     build: ./ldap
@@ -58,7 +60,7 @@ services:
       - "636:636"
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.60  # LDAP
+        ipv4_address: 192.168.11.60
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_config:/etc/ldap/slapd.d
@@ -69,11 +71,12 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    privileged: true
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.254  # Gateway da rede de servidores
+        ipv4_address: 192.168.11.254
       rede_clientes:
-        ipv4_address: 192.168.10.254  # Gateway da rede de clientes
+        ipv4_address: 192.168.10.254
 
   samba:
     build: ./samba
@@ -83,7 +86,7 @@ services:
       - NET_ADMIN
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.61  # SAMBA
+        ipv4_address: 192.168.11.61
     volumes:
       - ./samba/public:/samba/public
 
@@ -92,7 +95,7 @@ services:
     container_name: webserver
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.50  # Webserver
+        ipv4_address: 192.168.11.50
     ports:
       - "8080:80"
 
@@ -124,3 +127,4 @@ networks:
     ipam:
       config:
         - subnet: 192.168.10.0/24
+
