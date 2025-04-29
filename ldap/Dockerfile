@@ -1,10 +1,8 @@
-FROM osixia/openldap:1.5.0
+FROM osixia/openldap
 
-ENV LDAP_ORGANISATION="FastFood Ltda" \
-    LDAP_DOMAIN="fastfod.com" \
-    LDAP_ADMIN_PASSWORD="admin123"
+COPY base.ldif /container/service/slapd/assets/config/bootstrap/ldif/50-bootstrap.ldif
+COPY entrypoint.sh /container-entrypoint.sh
 
-# Copia o LDIF para a pasta de importação automática
-COPY base.ldif /container/service/slapd/assets/config/bootstrap/ldif/50-base.ldif
+RUN chmod +x /container-entrypoint.sh
 
-EXPOSE 389 636
+ENTRYPOINT ["/container-entrypoint.sh"]

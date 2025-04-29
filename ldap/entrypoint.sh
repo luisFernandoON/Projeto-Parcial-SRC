@@ -1,22 +1,16 @@
 #!/bin/bash
+set -e
 
-echo "Aguardando o OpenLDAP ficar disponível..."
+# Start the original entrypoint in background
+/docker-entrypoint.sh &
 
-# Loop até o servidor responder
-while ! ldapsearch -x -H ldap://localhost -b "" > /dev/null 2>&1; do
-    echo "LDAP ainda não disponível, aguardando..."
-    sleep 2
+# Wait for LDAP service to be ready
+until ldapsearch -x -H ldap://localhost -b dc=example,dc=org >/dev/null 2>&1; do
+  echo "Waiting for LDAP to be ready..."
+  sleep 2
 done
 
-echo "LDAP disponível! Verificando se a base já existe..."
+# Import the LDIF
+ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/config/bootstrap/ldif/50-bootstrap.ldif
 
-ldapsearch -x -H ldap://localhost -b dc=fastfod,dc=com > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "Base DN não encontrada, importando estrutura base..."
-    ldapadd -x -D "cn=admin,dc=fastfod,dc=com" -w admin123 -f /container/ldif/base.ldif
-else
-    echo "Base DN já existente."
-fi
-
-# Mantém o container ativo
-tail -f /dev/null
+wait

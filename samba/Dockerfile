@@ -1,11 +1,10 @@
-FROM dperson/samba
+FROM ubuntu:20.04
 
-# Copia os arquivos de configuração
+RUN apt-get update && apt-get install -y samba
+
 COPY smb.conf /etc/samba/smb.conf
 COPY setup.sh /setup.sh
 
-# Torna o script executável
 RUN chmod +x /setup.sh
 
-# Executa o script no start
-CMD ["/setup.sh"]
+ENTRYPOINT ["/setup.sh"]
