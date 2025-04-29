@@ -4,21 +4,13 @@
 # authoring-byte-order entry is generated, DO NOT DELETE
 authoring-byte-order little-endian;
 
-lease 192.168.10.100 {
-  starts 1 2025/04/07 15:53:20;
-  ends 2 2025/04/08 03:53:20;
-  tstp 2 2025/04/08 03:53:20;
-  cltt 1 2025/04/07 15:53:20;
+lease 172.29.0.100 {
+  starts 2 2025/04/29 18:56:50;
+  ends 2 2025/04/29 19:06:50;
+  tstp 2 2025/04/29 19:06:50;
+  cltt 2 2025/04/29 18:56:54;
   binding state free;
-  hardware ethernet ca:57:16:c7:9a:c9;
+  hardware ethernet 02:42:ac:1d:00:01;
 }
-lease 192.168.10.101 {
-  starts 1 2025/04/07 15:55:19;
-  ends 2 2025/04/08 03:55:19;
-  tstp 2 2025/04/08 03:55:19;
-  cltt 1 2025/04/07 15:55:19;
-  binding state free;
-  hardware ethernet 86:a6:44:09:9f:19;
-}
-server-duid "\000\001\000\001/\206\245\006\346\225\207I\335\313";
+server-duid "\000\001\000\001/\243\3212\002B\254\035\000\012";
 

@@ -7,10 +7,11 @@ $TTL    604800
                         604800 )  ; Negative Cache TTL
 
 @       IN      NS      ns1.fastfood.local.
+
 10      IN      PTR     ns1.fastfood.local.
-1       IN      PTR     router.fastfood.local.
-11      IN      PTR     dhcp.fastfood.local.
-12      IN      PTR     ldap.fastfood.local.
-13      IN      PTR     samba.fastfood.local.
-14      IN      PTR     ftp.fastfood.local.
-15      IN      PTR     web.fastfood.local.
+50      IN      PTR     web.fastfood.local.
+51      IN      PTR     ftp.fastfood.local.
+60      IN      PTR     ldap.fastfood.local.
+61      IN      PTR     samba.fastfood.local.
+253     IN      PTR     router.fastfood.local.
+

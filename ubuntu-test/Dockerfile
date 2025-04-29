@@ -13,6 +13,7 @@ RUN apt update && apt install -y \
     ftp \
     telnet \
     netcat-openbsd \
+    isc-dhcp-client \
  && apt clean
 
 COPY testes.sh /root/testes.sh

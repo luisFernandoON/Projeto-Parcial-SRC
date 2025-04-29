@@ -9,7 +9,7 @@ services:
       - NET_ADMIN
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.10
+        ipv4_address: 172.28.0.10
 
   dhcp:
     build: ./dhcp
@@ -22,7 +22,7 @@ services:
       - ./dhcp/leases:/var/lib/dhcp
     networks:
       rede_clientes:
-        ipv4_address: 192.168.10.10
+        ipv4_address: 172.29.0.10
 
   ubuntu-test:
     build:
@@ -32,9 +32,10 @@ services:
     cap_add:
       - NET_ADMIN
     tty: true
+    dns:
+      - 172.28.0.10
     networks:
-      rede_clientes:
-        ipv4_address: 192.168.10.50
+      rede_clientes: {}
 
   ftp:
     build: ./ftp
@@ -48,7 +49,7 @@ services:
       - "10090-10100:10090-10100"
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.51
+        ipv4_address: 172.28.0.51
 
   ldap:
     build: ./ldap
@@ -62,20 +63,20 @@ services:
       - ldap_config:/etc/ldap/slapd.d
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.60
+        ipv4_address: 172.28.0.60
 
   roteador:
     build: ./router
     container_name: roteador
-    restart: unless-stopped
     privileged: true
+    restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.254
-      rede_clientes:
-        ipv4_address: 192.168.10.254
+        ipv4_address: 172.28.0.253
 
   samba:
     build: ./samba
@@ -87,7 +88,7 @@ services:
       - ./samba/public:/samba/public
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.61
+        ipv4_address: 172.28.0.61
 
   webserver:
     build: ./webserver
@@ -97,7 +98,7 @@ services:
       - "8080:80"
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.50
+        ipv4_address: 172.28.0.50
 
   firewall:
     build: ./firewall
@@ -107,9 +108,9 @@ services:
       - NET_ADMIN
     networks:
       rede_servidores:
-        ipv4_address: 192.168.11.30
+        ipv4_address: 172.28.0.30
       rede_clientes:
-        ipv4_address: 192.168.10.30
+        ipv4_address: 172.29.0.30
 
 volumes:
   ldap_data:
@@ -120,13 +121,13 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.11.0/24
-          gateway: 192.168.11.254
+        - subnet: 172.28.0.0/24
+          gateway: 172.28.0.254
 
   rede_clientes:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.10.0/24
-          gateway: 192.168.10.254
+        - subnet: 172.29.0.0/24
+          gateway: 172.29.0.254
 
