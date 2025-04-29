@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   dns:
@@ -30,12 +30,11 @@ services:
       dockerfile: Dockerfile
     container_name: ubuntu-test
     cap_add:
-      - NET_ADMIN  
+      - NET_ADMIN
+    tty: true
     networks:
       rede_clientes:
         ipv4_address: 192.168.10.50
-    tty: true
-
 
   ftp:
     build: ./ftp
@@ -58,20 +57,20 @@ services:
     ports:
       - "389:389"
       - "636:636"
-    networks:
-      rede_servidores:
-        ipv4_address: 192.168.11.60
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_config:/etc/ldap/slapd.d
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.11.60
 
   roteador:
     build: ./router
     container_name: roteador
     restart: unless-stopped
+    privileged: true
     cap_add:
       - NET_ADMIN
-    privileged: true
     networks:
       rede_servidores:
         ipv4_address: 192.168.11.254
@@ -84,20 +83,21 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    volumes:
+      - ./samba/public:/samba/public
     networks:
       rede_servidores:
         ipv4_address: 192.168.11.61
-    volumes:
-      - ./samba/public:/samba/public
 
   webserver:
     build: ./webserver
     container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "8080:80"
     networks:
       rede_servidores:
         ipv4_address: 192.168.11.50
-    ports:
-      - "8080:80"
 
   firewall:
     build: ./firewall
@@ -121,10 +121,12 @@ networks:
     ipam:
       config:
         - subnet: 192.168.11.0/24
+          gateway: 192.168.11.254
 
   rede_clientes:
     driver: bridge
     ipam:
       config:
         - subnet: 192.168.10.0/24
+          gateway: 192.168.10.254
 

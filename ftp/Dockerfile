@@ -11,8 +11,12 @@ RUN apt update && \
 
 COPY vsftpd.conf /etc/vsftpd.conf
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh \
+    && mkdir -p /var/run/vsftpd/empty \
+    && chown root:root /var/run/vsftpd/empty \
+    && chmod 755 /var/run/vsftpd/empty
 
 EXPOSE 20 21 10090-10100
 
 CMD ["/entrypoint.sh"]
+

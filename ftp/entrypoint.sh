@@ -1,18 +1,9 @@
-FROM ubuntu:20.04
+#!/bin/sh
+#
+# entrypoint.sh – inicia o vsftpd em primeiro plano
+#
 
-ENV DEBIAN_FRONTEND=noninteractive
+set -eu
 
-RUN apt update && \
-    apt install -y vsftpd ftp openssl && \
-    useradd -m ftpuser && \
-    echo "ftpuser:1234" | chpasswd && \
-    mkdir -p /home/ftpuser/ftp/files && \
-    chown -R ftpuser:ftpuser /home/ftpuser/ftp
+exec /usr/sbin/vsftpd /etc/vsftpd.conf
 
-COPY vsftpd.conf /etc/vsftpd.conf
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-EXPOSE 20 21 10090-10100
-
-CMD ["/entrypoint.sh"]
