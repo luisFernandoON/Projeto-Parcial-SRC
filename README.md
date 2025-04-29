@@ -1,12 +1,13 @@
 # 🚀 FASTFOOD - Infraestrutura de Rede com Docker
 
-Projeto parcial da disciplina **Serviços de Redes de Computadores - 5º Período**. O objetivo é implementar uma infraestrutura de rede corporativa para uma rede de fast foods, utilizando containers Docker, redes isoladas e serviços essenciais de gestão.
+Projeto parcial da disciplina **Serviços de Redes de Computadores - 5º Período** – IF Goiano.  
+Este projeto simula a infraestrutura de TI de uma rede de fast foods, implementada inteiramente com **Docker**, separando serviços essenciais em **sub-redes isoladas** com um container roteador atuando como gateway.
 
 ---
 
 ## 📌 Objetivo
 
-Implementar uma infraestrutura de rede corporativa, simulando um ambiente empresarial realista, com os seguintes serviços:
+Implementar uma infraestrutura de rede corporativa com os seguintes serviços, todos em containers Docker:
 
 - DNS (Bind9)
 - DHCP (ISC DHCP)
@@ -15,175 +16,177 @@ Implementar uma infraestrutura de rede corporativa, simulando um ambiente empres
 - LDAP (OpenLDAP)
 - SAMBA
 - Web Server (Apache)
-- Roteador (Ubuntu customizado)
+- Roteador (Ubuntu com iptables + NAT)
 
 ---
 
-## 🧱 Estrutura do Projeto
-
+## 🧱 Estrutura de Diretórios
 
 FASTFOOD/ 
-  ├── dhcp/ 
-  ├── dns/ 
-  ├── docs/ 
-  ├── firewall/ 
-  ├── ftp/ 
-  ├── ldap/ 
-  ├── router/ 
-  ├── samba/ 
-  ├── scripts/ 
-  ├── webserver/ 
-  ├── docker-compose.yml 
-  └── README.md
+ ├── containers/│ 
+ ├── dhcp/ │  
+ ├── dns/ │ 
+ ├── firewall/ │ 
+ ├── ftp/ │ 
+ ├── ldap/ │ 
+ ├── router/ │ 
+ ├── samba/ │ 
+ ├── webserver/ 
+ ├── scripts/ │ 
+     └── testes.sh 
+ ├── docker-compose.yml 
+ └── README.md
 
 
+ 
 ---
 
 ## ⚙️ Pré-requisitos
 
+- Linux (recomendado: Ubuntu 22.04+)
 - Docker
 - Docker Compose
 - Git
-- Linux (recomendado Ubuntu)
-- Acesso root para executar comandos com permissão de rede
+- Acesso root ou permissão `sudo` para comandos de rede
 
 ---
 
-## 🧪 Como Executar
+## 🚀 Como Executar
 
 ```bash
 # 1. Clone o projeto
+git clone https://github.com/luisFernandoON/Projeto-Parcial-SRC.git
+cd Projeto-Parcial-SRC
 
-  - https://github.com/luisFernandoON/Projeto-Parcial-SRC.git
+# 2. Suba toda a infraestrutura
+sudo docker compose up -d --build
 
-cd FASTFOOD
-
-# 2. Suba a infraestrutura
-docker compose up -d
-
-
-
-
-
+# 3. (Opcional) Execute testes automatizados
+sudo docker exec -it ubuntu-test /root/testes.sh
 🌐 Topologia da Rede
-rede_servidores → 192.168.11.0/24
+Rede	Sub-rede	Serviços
+rede_servidores	172.28.0.0/24	DNS, FTP, Web, LDAP, Samba, etc
+rede_clientes	172.29.0.0/24	Cliente com DHCP, testes
 
-rede_clientes → 192.168.10.0/24
+O container roteador conecta ambas as redes, atuando como gateway com NAT e regras de firewall via iptables.
 
-O container roteador faz a ponte entre ambas.
-
-
-
-
-
-
-
-🧰 Serviços Configurados
+🧰 Serviços Configurados e Testes
 🧭 DNS (Bind9)
-IP: 192.168.11.10
 
-Resolve domínios locais (ex: ftp.fastfood, www.fastfood)
+    IP: 172.28.0.10
 
-Teste:
+    Função: Resolve nomes locais como ftp.fastfood.local
 
-    -   dig @192.168.11.10 ftp.fastfood
+  dig ftp.fastfood.local @172.28.0.10
+  dig -x 172.28.0.51 @172.28.0.10
 
 
 🛰 DHCP (ISC DHCP)
 
-IP: 192.168.10.10
+    IP: 172.29.0.10
 
-Distribui IPs na rede 192.168.10.0/24
+    Faixa de IPs: 172.29.0.100 – 172.29.0.200
 
-Teste:
-    - docker exec -it ubuntu-test bash
-      dhclient
-      ip a
+    Gateway distribuído: 172.29.0.253
+
+Testes:
+
+docker exec -it ubuntu-test dhclient -v
+docker exec -it ubuntu-test ip route
 
 📁 FTP (vsftpd)
-    - IP: 192.168.11.51
 
-Portas expostas: 20, 21, 10090–10100
+    IP: 172.28.0.51
 
-Teste:
-    -ftp 192.168.11.51
+    Portas: 20, 21, 10090-10100
+
+Testes:
+ftp 172.28.0.51
 
 🔥 Firewall (iptables)
-IPs: 192.168.11.30 e 192.168.10.30
 
-Regras configuradas via script iptables.sh no container
+    IPs: 172.28.0.30 e 172.29.0.30
 
-Teste:
-    - iptables -L
+Testes:
 
+docker exec -it firewall iptables -L -v -n
 
 🔐 LDAP (OpenLDAP)
-IP: 192.168.11.60
 
-Porta: 389 (LDAP), 636 (LDAPS)
+    IP: 172.28.0.60
 
-Base DN: dc=fastfood,dc=local
+    Portas: 389, 636
 
-Teste com ldapsearch:
-    - ldapsearch -x -H ldap://192.168.11.60 -b dc=fastfood,dc=local
+    Base DN: dc=fastfood,dc=local
 
-🖥 SAMBA
-IP: 192.168.11.61
+Testes:
 
-Compartilhamento da pasta pública /samba/public
+ldapsearch -x -H ldap://172.28.0.60 -b dc=fastfood,dc=local
 
-Teste:
-    - smbclient //192.168.11.61/public -U usuario
 
+💻 SAMBA
+
+    IP: 172.28.0.61
+
+    Compartilhamento: /samba/public
+
+Testes:
+smbclient //172.28.0.61/public -U usuario
 
 🌐 Web Server (Apache2)
-IP: 192.168.11.50
 
-Porta exposta: 8080
+    IP: 172.28.0.50
 
-Acesse via navegador:
-    - http://localhost:8080
-    
+    Porta: 8080
+
+Acesso:
+
+http://localhost:8080
+
 🌉 Roteador
-IPs:
 
-192.168.11.1 (rede_servidores)
+    -IPs: 172.28.0.253 (servidores), 172.29.0.253 (clientes)
 
-192.168.10.1 (rede_clientes)
-
-Permite comunicação entre as sub-redes
-
-Script customizado de NAT e roteamento
-
-Teste:
-
-    - ping 192.168.10.10
+    -Função: NAT, roteamento entre redes
 
 
-✅ Status dos Serviços
-Serviço	        IP	            Status	      Testado
-DNS	        192.168.11.10	       ✅          Ativo	✅
-DHCP	    192.168.10.10	         ✅          Ativo	✅
-FTP	        192.168.11.51	       ✅          Ativo	✅
-Firewall	192.168.11.30/10.30	   ✅          Ativo	✅
-LDAP	    192.168.11.60	         ✅          Ativo	✅
-SAMBA	    192.168.11.61	         ✅          Ativo	✅
-Webserver	192.168.11.50	         ✅          Ativo	✅
-Roteador	192.168.11.1/10.1	     ✅          Ativo	✅
+Testes:
+- docker exec -it ubuntu-test ping -c 3 172.28.0.10
 
+🧪 Script de Testes Automatizados
+
+Após subir os containers, execute:
+
+sudo docker exec -it ubuntu-test /root/testes.sh
+
+
+Esse script valida:
+
+    Rota padrão
+
+    Conectividade com gateway
+
+    Resolução de DNS direta e reversa
+
+    Acesso a serviços LDAP, FTP, Web
 
 
 📄 Autores
-Luis Fernando 👨‍💻
-Ítalo         👨‍💻
-Thiago Silva  👨‍💻
+
+    Luis Fernando 👨‍💻
+
+    Ítalo 👨‍💻
+
+    Thiago Silva 👨‍💻
 
 
 Professor orientador: Roitier Campos Gonçalves
 
 
 📚 Licença
-Este projeto está licenciado sob a licença MIT - consulte o arquivo LICENSE para mais detalhes.
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
 
 🧠 Notas Finais
-Este projeto é uma simulação educacional. Embora funcional, seu uso em produção exigiria configurações adicionais de segurança e performance.
+Este projeto é uma simulação acadêmica de um ambiente corporativo em containers.
+Embora funcional, o uso em produção requer melhorias em segurança, monitoramento e persistência de dados.
