@@ -1,14 +1,16 @@
 #!/bin/bash
+set -e
 
-# Cria diretório compartilhado
 mkdir -p /samba/public
-chmod -R 0777 /samba/public
 
-# Cria usuário local (sem diretório home, sem shell)
-useradd -M -s /usr/sbin/nologin fastuser
+# Cria usuário do sistema
+useradd -M fastuser
 
-# Adiciona ao samba com senha
-(echo "senha123"; echo "senha123") | smbpasswd -a -s fastuser
+# Cria usuário no Samba com senha "senha"
+(echo "senha"; echo "senha") | smbpasswd -s -a fastuser
 
-# Inicia o samba como serviço no foreground
-exec /usr/sbin/smbd -F --no-process-group
+# Permissões
+chown -R fastuser:fastuser /samba/public
+
+# Inicia serviços
+smbd -F
