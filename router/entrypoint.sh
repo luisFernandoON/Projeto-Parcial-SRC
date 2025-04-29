@@ -1,14 +1,15 @@
-#!/bin/bash
+#!/bin/sh
+set -eu
 
-# Ativa o IP forwarding dentro do container (precisa de modo privileged)
+# Ativa o IP forwarding imediatamente
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
-# Apaga regras antigas (boa prática em testes)
-iptables -t nat -F
+# Define política de FORWARD para ACCEPT
+iptables -P FORWARD ACCEPT
 
-# Aplica regra de NAT: clientes (eth0) saem para os servidores (eth1)
-iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o eth1 -j MASQUERADE
+# Para habilitar NAT, descomente a linha abaixo e ajuste a interface de saída
+# iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
-# Mantém o container ativo
-sleep infinity
+# Mantém o container rodando
+exec tail -f /dev/null
 
