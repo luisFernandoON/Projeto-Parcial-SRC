@@ -77,6 +77,8 @@ services:
     networks:
       rede_servidores:
         ipv4_address: 172.28.0.253
+      rede_clientes:
+        ipv4_address: 172.29.0.253
 
   samba:
     build: ./samba
@@ -111,6 +113,14 @@ services:
         ipv4_address: 172.28.0.30
       rede_clientes:
         ipv4_address: 172.29.0.30
+
+  testes:
+    build:
+      context: .
+      dockerfile: Dockerfile.testes
+    volumes:
+      - ./scripts:/scripts
+    command: /bin/bash /scripts/testes.sh
 
 volumes:
   ldap_data:

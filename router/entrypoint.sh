@@ -7,6 +7,8 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 # Aguarda 5 segundos para garantir que a rede foi criada
 sleep 5
 
+
+
 # Conecta o container roteador na segunda rede
 docker network connect projeto-parcial-src_rede_clientes roteador || true
 
