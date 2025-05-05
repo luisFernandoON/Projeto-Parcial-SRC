@@ -17,7 +17,7 @@ fi
 echo
 
 echo "===== [TESTE 2] Ping para Gateway ====="
-ping -c 3 172.29.0.253 >/dev/null
+ping -c 3 192.168.2.254 >/dev/null
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ Gateway respondeu${reset}"
 else
@@ -27,7 +27,7 @@ fi
 echo
 
 echo "===== [TESTE 3] Teste DNS direto ====="
-dig ftp.fastfood.local @172.28.0.10 +short
+dig ftp.fastfood.local @192.168.1.10 +short
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ DNS direto funcional${reset}"
 else
@@ -37,7 +37,7 @@ fi
 echo
 
 echo "===== [TESTE 4] Teste DNS reverso ====="
-dig -x 172.28.0.51 @172.28.0.10 +short
+dig -x 192.168.1.50 @192.168.1.10 +short
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ DNS reverso funcional${reset}"
 else
@@ -47,7 +47,7 @@ fi
 echo
 
 echo "===== [TESTE 5] Verificando Webserver ====="
-curl -sI http://172.28.0.50 | grep "200 OK" >/dev/null
+curl -sI http://192.168.1.50 | grep "200 OK" >/dev/null
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ Webserver respondeu com 200 OK${reset}"
 else
@@ -57,7 +57,7 @@ fi
 echo
 
 echo "===== [TESTE 6] Testando FTP (porta 21) ====="
-nc -zvw2 172.28.0.51 21 >/dev/null
+nc -zvw2 192.168.1.20 21 >/dev/null
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ FTP porta 21 disponível${reset}"
 else
@@ -67,7 +67,7 @@ fi
 echo
 
 echo "===== [TESTE 7] Testando LDAP ====="
-nc -zvw2 172.28.0.60 389 >/dev/null
+nc -zvw2 192.168.1.30 389 >/dev/null
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ LDAP porta 389 disponível${reset}"
 else
@@ -77,7 +77,7 @@ fi
 echo
 
 echo "===== [TESTE 8] Testando SAMBA ====="
-nc -zvw2 172.28.0.61 445 >/dev/null
+nc -zvw2 192.168.1.40 445 >/dev/null
 if [ $? -eq 0 ]; then
     echo -e "${green}✅ SAMBA porta 445 disponível${reset}"
 else

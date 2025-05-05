@@ -1,0 +1,12 @@
+volumes/
+*.log
+*.tmp
+*.bak
+*.swp
+*.pid
+ldap/config/
+*/config/
+
+__pycache__/
+ldap/config/
+ldap/data/

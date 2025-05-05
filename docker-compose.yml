@@ -1,143 +1,123 @@
 version: '3.8'
 
 services:
-  dns:
-    build: ./dns
-    container_name: dns
-    restart: unless-stopped
+  router:
+    image: ubuntu:20.04
+    container_name: roteador
     cap_add:
       - NET_ADMIN
+    command: bash /scripts/start-router.sh
+    volumes:
+      - ./scripts:/scripts
     networks:
       rede_servidores:
-        ipv4_address: 172.28.0.10
+        ipv4_address: 192.168.1.254
+      rede_clientes:
+        ipv4_address: 192.168.2.254
+
+  dns:
+    image: sameersbn/bind:latest
+    container_name: dns
+    ports:
+      - "1053:53/tcp"
+      - "1053:53/udp"
+    volumes:
+      - ./dns:/data
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.1.10
 
   dhcp:
-    build: ./dhcp
+    image: ubuntu:20.04
     container_name: dhcp
-    restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    command: bash /scripts/start-dhcp.sh
     volumes:
-      - ./dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
-      - ./dhcp/leases:/var/lib/dhcp
+      - ./scripts:/scripts
     networks:
       rede_clientes:
-        ipv4_address: 172.29.0.10
-
-  ubuntu-test:
-    build:
-      context: ./ubuntu-test
-      dockerfile: Dockerfile
-    container_name: ubuntu-test
-    cap_add:
-      - NET_ADMIN
-    tty: true
-    dns:
-      - 172.28.0.10
-    networks:
-      rede_clientes: {}
+        ipv4_address: 192.168.2.10
 
   ftp:
-    build: ./ftp
+    image: stilliard/pure-ftpd
     container_name: ftp
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
     ports:
       - "21:21"
-      - "20:20"
-      - "10090-10100:10090-10100"
+      - "30000-30009:30000-30009"
+    volumes:
+      - ./ftp:/home/ftpusers
     networks:
       rede_servidores:
-        ipv4_address: 172.28.0.51
+        ipv4_address: 192.168.1.20
 
   ldap:
-    build: ./ldap
+    image: osixia/openldap:1.5.0
     container_name: ldap
-    restart: unless-stopped
-    ports:
-      - "389:389"
-      - "636:636"
+    environment:
+      - LDAP_ORGANISATION=Intranet
+      - LDAP_DOMAIN=intranet.local
+      - LDAP_ADMIN_PASSWORD=admin
     volumes:
-      - ldap_data:/var/lib/ldap
-      - ldap_config:/etc/ldap/slapd.d
+      - ./ldap/data:/var/lib/ldap
+      - ./ldap/config:/etc/ldap/slapd.d
     networks:
       rede_servidores:
-        ipv4_address: 172.28.0.60
-
-  roteador:
-    build: ./router
-    container_name: roteador
-    privileged: true
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      rede_servidores:
-        ipv4_address: 172.28.0.253
-      rede_clientes:
-        ipv4_address: 172.29.0.253
+        ipv4_address: 192.168.1.30
 
   samba:
-    build: ./samba
+    image: dperson/samba
     container_name: samba
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
+    command: -u "usuario;senha" -s "publico;/compartilhado;yes;no"
     volumes:
-      - ./samba/public:/samba/public
+      - ./samba/compartilhado:/compartilhado
     networks:
       rede_servidores:
-        ipv4_address: 172.28.0.61
+        ipv4_address: 192.168.1.40
 
   webserver:
-    build: ./webserver
+    image: httpd:latest
     container_name: webserver
-    restart: unless-stopped
+    volumes:
+      - ./webserver:/usr/local/apache2/htdocs/
     ports:
       - "8080:80"
     networks:
       rede_servidores:
-        ipv4_address: 172.28.0.50
+        ipv4_address: 192.168.1.50
 
-  firewall:
-    build: ./firewall
-    container_name: firewall
-    restart: unless-stopped
+  ubuntu-test:
+    image: ubuntu:20.04
+    container_name: ubuntu-test
     cap_add:
       - NET_ADMIN
-    networks:
-      rede_servidores:
-        ipv4_address: 172.28.0.30
-      rede_clientes:
-        ipv4_address: 172.29.0.30
-
-  testes:
-    build:
-      context: .
-      dockerfile: Dockerfile.testes
+    tty: true
     volumes:
       - ./scripts:/scripts
-    command: /bin/bash /scripts/testes.sh
+    networks:
+      rede_clientes:
+        ipv4_address: 192.168.2.100
 
-volumes:
-  ldap_data:
-  ldap_config:
+  testes:
+    image: ubuntu:20.04
+    container_name: testes
+    command: bash -c "apt update && apt install -y iproute2 iputils-ping dnsutils curl netcat && tail -f /dev/null"
+    volumes:
+      - ./scripts:/scripts
+    networks:
+      rede_clientes:
+        ipv4_address: 192.168.2.200
 
 networks:
   rede_servidores:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.28.0.0/24
-          gateway: 172.28.0.254
+        - subnet: 192.168.1.0/24
 
   rede_clientes:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.29.0.0/24
-          gateway: 172.29.0.254
+        - subnet: 192.168.2.0/24
 
