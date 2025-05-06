@@ -1,12 +1,11 @@
 #!/bin/bash
 
-
 set -e
 
+# Cria arquivos necessários
 mkdir -p /var/lib/dhcp
 touch /var/lib/dhcp/dhcpd.leases
 
-exec /usr/sbin/dhcpd -f
+# Inicia o servidor DHCP na interface correta
+exec /usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf eth0
 
-service isc-dhcp-server start
-tail -f /var/log/syslog
