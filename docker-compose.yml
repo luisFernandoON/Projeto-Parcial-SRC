@@ -2,42 +2,38 @@ version: '3.8'
 
 services:
   router:
-    image: ubuntu:20.04
+    build:
+      context: ./router
     container_name: roteador
     cap_add:
       - NET_ADMIN
-    command: bash /scripts/start-router.sh
-    volumes:
-      - ./scripts:/scripts
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.254
       rede_clientes:
         ipv4_address: 192.168.2.254
+    restart: unless-stopped
 
   dns:
-    image: sameersbn/bind:latest
+    build: ./dns
     container_name: dns
     ports:
       - "1053:53/tcp"
       - "1053:53/udp"
-    volumes:
-      - ./dns:/data
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.10
+    restart: unless-stopped
 
   dhcp:
-    image: ubuntu:20.04
+    build: ./dhcp
     container_name: dhcp
     cap_add:
       - NET_ADMIN
-    command: bash /scripts/start-dhcp.sh
-    volumes:
-      - ./scripts:/scripts
     networks:
       rede_clientes:
         ipv4_address: 192.168.2.10
+    restart: unless-stopped
 
   ftp:
     image: stilliard/pure-ftpd
@@ -50,6 +46,7 @@ services:
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.20
+    restart: unless-stopped
 
   ldap:
     image: osixia/openldap:1.5.0
@@ -64,6 +61,7 @@ services:
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.30
+    restart: unless-stopped
 
   samba:
     image: dperson/samba
@@ -74,6 +72,7 @@ services:
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.40
+    restart: unless-stopped
 
   webserver:
     image: httpd:latest
@@ -85,28 +84,45 @@ services:
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.50
+    restart: unless-stopped
 
   ubuntu-test:
-    image: ubuntu:20.04
+    build:
+      context: ./ubuntu-test
     container_name: ubuntu-test
     cap_add:
       - NET_ADMIN
     tty: true
     volumes:
       - ./scripts:/scripts
+    dns:
+      - 192.168.1.10
     networks:
       rede_clientes:
         ipv4_address: 192.168.2.100
+    restart: unless-stopped
 
   testes:
-    image: ubuntu:20.04
+    build:
+      context: ./scripts
     container_name: testes
-    command: bash -c "apt update && apt install -y iproute2 iputils-ping dnsutils curl netcat && tail -f /dev/null"
+    cap_add:
+      - NET_ADMIN
+    tty: true
     volumes:
       - ./scripts:/scripts
+      - ./logs:/resultados
     networks:
       rede_clientes:
         ipv4_address: 192.168.2.200
+    depends_on:
+      - router
+      - dns
+      - ldap
+      - ftp
+      - webserver
+
+
 
 networks:
   rede_servidores:

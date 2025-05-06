@@ -16,9 +16,9 @@ build:
 test:
 	docker exec -it ubuntu-test bash /root/testes.sh
 
-# Executa o container 'testes' para rodar o script e encerrar
+# Executa o container 'testes' com suporte a argumentos (ex: ARGS=--resumido)
 test-run:
-	docker-compose run --rm testes
+	docker-compose run --rm testes $(ARGS)
 
 # Verifica status dos containers
 status:

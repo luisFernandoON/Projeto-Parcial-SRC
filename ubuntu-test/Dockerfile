@@ -17,7 +17,9 @@ RUN apt update && apt install -y \
  && apt clean
 
 COPY testes.sh /root/testes.sh
-RUN chmod +x /root/testes.sh
+COPY entrypoint.sh /entrypoint.sh
 
-CMD ["bash"]
+RUN chmod +x /root/testes.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 

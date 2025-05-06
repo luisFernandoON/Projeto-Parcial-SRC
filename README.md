@@ -1,192 +1,199 @@
-# 🚀 FASTFOOD - Infraestrutura de Rede com Docker
+🚀 FASTFOOD — Infraestrutura de Rede com Docker
 
-Projeto parcial da disciplina **Serviços de Redes de Computadores - 5º Período** – IF Goiano.  
-Este projeto simula a infraestrutura de TI de uma rede de fast foods, implementada inteiramente com **Docker**, separando serviços essenciais em **sub-redes isoladas** com um container roteador atuando como gateway.
+Simulação de uma infraestrutura corporativa para uma rede de fast foods, desenvolvida com Docker para a disciplina Serviços de Redes de Computadores (5º Período - IF Goiano).O projeto isola serviços em sub-redes e utiliza um roteador central com NAT e firewall.
 
----
+🌟 Objetivo
 
-## 📌 Objetivo
+Implementar, testar e documentar os seguintes serviços de rede em containers:
 
-Implementar uma infraestrutura de rede corporativa com os seguintes serviços, todos em containers Docker:
+DNS (Bind9)
 
-- DNS (Bind9)
-- DHCP (ISC DHCP)
-- FTP (vsftpd)
-- Firewall (iptables)
-- LDAP (OpenLDAP)
-- SAMBA
-- Web Server (Apache)
-- Roteador (Ubuntu com iptables + NAT)
+DHCP (ISC DHCP)
 
----
+FTP (vsftpd)
 
-## 🧱 Estrutura de Diretórios
+LDAP (OpenLDAP)
 
-FASTFOOD/ 
- ├── containers/│ 
- ├── dhcp/ │  
- ├── dns/ │ 
- ├── firewall/ │ 
- ├── ftp/ │ 
- ├── ldap/ │ 
- ├── router/ │ 
- ├── samba/ │ 
- ├── webserver/ 
- ├── scripts/ │ 
-     └── testes.sh 
- ├── docker-compose.yml 
- └── README.md
+SAMBA
 
+Web Server (Apache)
 
- 
----
+Firewall (iptables)
 
-## ⚙️ Pré-requisitos
+Roteador (Ubuntu)
 
-- Linux (recomendado: Ubuntu 22.04+)
-- Docker
-- Docker Compose
-- Git
-- Acesso root ou permissão `sudo` para comandos de rede
+📁 Estrutura do Projeto
 
----
+Projeto-Parcial-SRC/
+├── containers/
+│   ├── dhcp/         # Servidor DHCP
+│   ├── dns/          # Servidor DNS
+│   ├── ftp/          # Servidor FTP
+│   ├── ldap/         # Servidor LDAP
+│   ├── router/       # Roteador com NAT e firewall
+│   ├── samba/        # Compartilhamento de arquivos
+│   └── webserver/    # Servidor Apache
+├── scripts/          # Scripts de inicialização e testes
+│   ├── testes.sh
+│   └── entrypoint.sh
+├── docker-compose.yml
+└── README.md
 
-## 🚀 Como Executar
+⚙️ Requisitos
 
-```bash
-# 1. Clone o projeto
+Linux (Ubuntu 22.04+ recomendado)
+
+Docker + Docker Compose
+
+Git
+
+Permissão sudo
+
+🚀 Como Executar
+
+# Clone o repositório
 git clone https://github.com/luisFernandoON/Projeto-Parcial-SRC.git
 cd Projeto-Parcial-SRC
 
-# 2. Suba toda a infraestrutura
-sudo docker compose up -d --build
+# Suba os containers
+sudo make up
 
-# 3. (Opcional) Execute testes automatizados
-sudo docker exec -it ubuntu-test /root/testes.sh
-🌐 Topologia da Rede
-Rede	Sub-rede	Serviços
-rede_servidores	172.28.0.0/24	DNS, FTP, Web, LDAP, Samba, etc
-rede_clientes	172.29.0.0/24	Cliente com DHCP, testes
+# (Opcional) Execute os testes automatizados
+make test-run
+# Ou em modo resumido
+make test-run ARGS=--resumido
 
-O container roteador conecta ambas as redes, atuando como gateway com NAT e regras de firewall via iptables.
+🌐 Topologia de Rede
 
-🧰 Serviços Configurados e Testes
-🧭 DNS (Bind9)
+Rede
 
-    IP: 172.28.0.10
+Sub-rede
 
-    Função: Resolve nomes locais como ftp.fastfood.local
+Serviços
 
-  dig ftp.fastfood.local @172.28.0.10
-  dig -x 172.28.0.51 @172.28.0.10
+rede_servidores
 
+192.168.1.0/24
 
-🛰 DHCP (ISC DHCP)
+DNS, FTP, Web, LDAP, SAMBA
 
-    IP: 172.29.0.10
+rede_clientes
 
-    Faixa de IPs: 172.29.0.100 – 172.29.0.200
+192.168.2.0/24
 
-    Gateway distribuído: 172.29.0.253
+Clientes com DHCP, Ubuntu-Test
 
-Testes:
+O container router conecta ambas as redes, realiza NAT e aplica regras de firewall.
+
+🧰 Serviços Implementados
+
+🤭 DNS (Bind9)
+
+IP: 192.168.1.10
+
+Resolve nomes como ftp.fastfood.local
+
+dig ftp.fastfood.local @192.168.1.10
+dig -x 192.168.1.50 @192.168.1.10
+
+🚁 DHCP (ISC DHCP)
+
+IP: 192.168.2.10
+
+Faixa: 192.168.2.100–200
+
+Gateway: 192.168.2.254
 
 docker exec -it ubuntu-test dhclient -v
-docker exec -it ubuntu-test ip route
+docker exec -it ubuntu-test ip a
 
 📁 FTP (vsftpd)
 
-    IP: 172.28.0.51
+IP: 192.168.1.20
 
-    Portas: 20, 21, 10090-10100
+Portas: 20, 21, 10090–10100
 
-Testes:
-ftp 172.28.0.51
-
-🔥 Firewall (iptables)
-
-    IPs: 172.28.0.30 e 172.29.0.30
-
-Testes:
-
-docker exec -it firewall iptables -L -v -n
+ftp ftp.fastfood.local
 
 🔐 LDAP (OpenLDAP)
 
-    IP: 172.28.0.60
+IP: 192.168.1.30
 
-    Portas: 389, 636
+Porta: 389
 
-    Base DN: dc=fastfood,dc=local
+Base DN: dc=fastfood,dc=local
 
-Testes:
-
-ldapsearch -x -H ldap://172.28.0.60 -b dc=fastfood,dc=local
-
+ldapsearch -x -H ldap://192.168.1.30 -b dc=fastfood,dc=local
 
 💻 SAMBA
 
-    IP: 172.28.0.61
+IP: 192.168.1.40
 
-    Compartilhamento: /samba/public
+Compartilhamento: /samba/public
 
-Testes:
-smbclient //172.28.0.61/public -U usuario
+smbclient //192.168.1.40/public -U usuario
 
 🌐 Web Server (Apache2)
 
-    IP: 172.28.0.50
+IP: 192.168.1.50
 
-    Porta: 8080
+Acesso via: http://localhost:8080
 
-Acesso:
+🔥 Firewall (iptables)
 
-http://localhost:8080
+Embutido no container router
 
-🌉 Roteador
+Regras definidas para entrada, roteamento e NAT
 
-    -IPs: 172.28.0.253 (servidores), 172.29.0.253 (clientes)
+docker exec -it router iptables -L -v -n
 
-    -Função: NAT, roteamento entre redes
+🎈 Roteador (Ubuntu com NAT)
+
+IPs: 192.168.1.254 e 192.168.2.254
+
+Faz roteamento entre as sub-redes
+
+docker exec -it ubuntu-test ping -c 3 192.168.1.10
+
+🧪 Testes Automatizados
+
+Com o container testes:
+
+make test-run         # modo completo
+make test-run ARGS=--resumido
+
+Valida:
+
+Rota padrão e gateway
+
+DNS direto e reverso
+
+LDAP, FTP e Web
+
+Resultados salvos em logs/testes.log
+
+👥 Autores
+
+Luis Fernando 👨‍💻
+
+Ítalo 👨‍💻
+
+Thiago Silva 👨‍💻
+
+Orientador: Prof. Roitier Campos Gonçalves
+
+📜 Licença
+
+Distribuído sob a licença MIT. Veja LICENSE.
+
+📌 Notas Finais
+
+Este é um ambiente acadêmico com foco didático. Para uso real, recomenda-se:
+
+Autenticação segura (SSL/TLS)
+
+Persistência de dados (volumes)
+
+Monitoramento e backups
 
 
-Testes:
-- docker exec -it ubuntu-test ping -c 3 172.28.0.10
-
-🧪 Script de Testes Automatizados
-
-Após subir os containers, execute:
-
-sudo docker exec -it ubuntu-test /root/testes.sh
-
-
-Esse script valida:
-
-    Rota padrão
-
-    Conectividade com gateway
-
-    Resolução de DNS direta e reversa
-
-    Acesso a serviços LDAP, FTP, Web
-
-
-📄 Autores
-
-    Luis Fernando 👨‍💻
-
-    Ítalo 👨‍💻
-
-    Thiago Silva 👨‍💻
-
-
-Professor orientador: Roitier Campos Gonçalves
-
-
-📚 Licença
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
-
-
-🧠 Notas Finais
-Este projeto é uma simulação acadêmica de um ambiente corporativo em containers.
-Embora funcional, o uso em produção requer melhorias em segurança, monitoramento e persistência de dados.

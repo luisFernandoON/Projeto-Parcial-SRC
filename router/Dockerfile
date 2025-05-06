@@ -1,9 +1,22 @@
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
-RUN apt update && apt install -y iproute2 iputils-ping net-tools iptables
+# Evita prompts interativos
+ENV DEBIAN_FRONTEND=noninteractive
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Instala ferramentas de rede e iptables
+RUN apt update && apt install -y \
+    iproute2 \
+    iptables \
+    iputils-ping \
+ && apt clean
 
-CMD ["/entrypoint.sh"]
+# Copia os scripts para o container
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY firewall.sh /usr/local/bin/firewall.sh
+
+# Dá permissão de execução
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/firewall.sh
+
+# Define o entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
