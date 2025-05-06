@@ -26,13 +26,10 @@ services:
     restart: unless-stopped
 
   dhcp:
-    image: ubuntu:20.04
+    build: ./dhcp
     container_name: dhcp
     cap_add:
       - NET_ADMIN
-    command: bash /scripts/start-dhcp.sh
-    volumes:
-      - ./scripts:/scripts
     networks:
       rede_clientes:
         ipv4_address: 192.168.2.10
@@ -90,13 +87,16 @@ services:
     restart: unless-stopped
 
   ubuntu-test:
-    image: ubuntu:20.04
+    build:
+      context: ./ubuntu-test
     container_name: ubuntu-test
     cap_add:
       - NET_ADMIN
     tty: true
     volumes:
       - ./scripts:/scripts
+    dns:
+      - 192.168.1.10
     networks:
       rede_clientes:
         ipv4_address: 192.168.2.100
@@ -111,6 +111,9 @@ services:
     tty: true
     volumes:
       - ./scripts:/scripts
+      - ./logs:/resultados
+    dns:
+      - 192.168.1.10
     networks:
       rede_clientes:
         ipv4_address: 192.168.2.200
@@ -128,4 +131,3 @@ networks:
     ipam:
       config:
         - subnet: 192.168.2.0/24
-

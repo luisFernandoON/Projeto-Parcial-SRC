@@ -12,8 +12,12 @@ RUN apt-get update && apt-get install -y \
     netcat \
     && apt-get clean
 
-# Copia o script de testes para dentro do container
+# Copia os scripts
 COPY testes.sh /scripts/testes.sh
-RUN chmod +x /scripts/testes.sh
+COPY entrypoint.sh /entrypoint.sh
 
-CMD ["/bin/bash"]
+# Permissões
+RUN chmod +x /scripts/testes.sh /entrypoint.sh
+
+# Roda o entrypoint que chama o testes.sh
+ENTRYPOINT ["/entrypoint.sh"]
