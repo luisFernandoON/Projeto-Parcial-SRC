@@ -148,6 +148,13 @@ Verificações realizadas:
 
 ---
 
+## 🖥️ Esquema de Redes:
+
+![Imagem do WhatsApp de 2025-05-13 à(s) 16 23 40_6775236e](https://github.com/user-attachments/assets/680e30f9-fccc-4ae5-af8f-b7eb90e22fb4)
+
+
+---
+
 ## 👨‍💻 Autores
 
 - Luis Fernando
