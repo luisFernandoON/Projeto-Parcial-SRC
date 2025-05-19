@@ -1,0 +1,19 @@
+dn: ou=usuarios,dc=fastfood,dc=local
+objectClass: organizationalUnit
+ou: usuarios
+
+dn: ou=grupos,dc=fastfood,dc=local
+objectClass: organizationalUnit
+ou: grupos
+
+dn: cn=admin,ou=usuarios,dc=fastfood,dc=local
+objectClass: inetOrgPerson
+sn: Admin
+cn: admin
+uid: admin
+userPassword: admin
+
+dn: cn=devs,ou=grupos,dc=fastfood,dc=local
+objectClass: posixGroup
+cn: devs
+gidNumber: 1001

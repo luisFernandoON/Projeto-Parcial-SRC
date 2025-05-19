@@ -1,10 +1,33 @@
-version: '3.8'
+version: "3.8"
 
 services:
+
+  dns:
+    build: ./containers/dns
+    container_name: dns_server
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.1.10
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+  dhcp:
+    build: ./containers/dhcp
+    container_name: dhcp_server
+    networks:
+      rede_clientes:
+        ipv4_address: 192.168.2.2
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
   router:
-    build:
-      context: ./router
-    container_name: roteador
+    build: ./containers/router
+    container_name: router
     cap_add:
       - NET_ADMIN
     networks:
@@ -14,110 +37,79 @@ services:
         ipv4_address: 192.168.2.254
     restart: unless-stopped
 
-  dns:
-    build: ./dns
-    container_name: dns
-    ports:
-      - "1053:53/tcp"
-      - "1053:53/udp"
+  firewall:
+    build: ./containers/firewall
+    container_name: firewall
     networks:
       rede_servidores:
-        ipv4_address: 192.168.1.10
-    restart: unless-stopped
-
-  dhcp:
-    build: ./dhcp
-    container_name: dhcp
+        ipv4_address: 192.168.1.5
     cap_add:
       - NET_ADMIN
-    networks:
-      rede_clientes:
-        ipv4_address: 192.168.2.10
-    restart: unless-stopped
-
-  ftp:
-    image: stilliard/pure-ftpd
-    container_name: ftp
-    ports:
-      - "21:21"
-      - "30000-30009:30000-30009"
-    volumes:
-      - ./ftp:/home/ftpusers
-    networks:
-      rede_servidores:
-        ipv4_address: 192.168.1.20
+    depends_on:
+      - router
     restart: unless-stopped
 
   ldap:
-    image: osixia/openldap:1.5.0
-    container_name: ldap
+    build: ./containers/ldap
+    container_name: ldap_server
     environment:
-      - LDAP_ORGANISATION=Intranet
-      - LDAP_DOMAIN=intranet.local
-      - LDAP_ADMIN_PASSWORD=admin
-    volumes:
-      - ./ldap/data:/var/lib/ldap
-      - ./ldap/config:/etc/ldap/slapd.d
-    networks:
-      rede_servidores:
-        ipv4_address: 192.168.1.30
-    restart: unless-stopped
-
-  samba:
-    image: dperson/samba
-    container_name: samba
-    command: -u "usuario;senha" -s "publico;/compartilhado;yes;no"
-    volumes:
-      - ./samba/compartilhado:/compartilhado
-    networks:
-      rede_servidores:
-        ipv4_address: 192.168.1.40
-    restart: unless-stopped
-
-  webserver:
-    image: httpd:latest
-    container_name: webserver
-    volumes:
-      - ./webserver:/usr/local/apache2/htdocs/
-    ports:
-      - "8080:80"
+      LDAP_ORGANISATION: "Fastfood Corp"
+      LDAP_DOMAIN: "fastfood.local"
+      LDAP_ADMIN_PASSWORD: "admin"
     networks:
       rede_servidores:
         ipv4_address: 192.168.1.50
     restart: unless-stopped
 
-  ubuntu-test:
-    build:
-      context: ./ubuntu-test
-    container_name: ubuntu-test
-    cap_add:
-      - NET_ADMIN
-    tty: true
-    volumes:
-      - ./scripts:/scripts
-    dns:
-      - 192.168.1.10
+  samba:
+    build: ./containers/samba
+    container_name: samba_server
     networks:
-      rede_clientes:
-        ipv4_address: 192.168.2.100
+      rede_servidores:
+        ipv4_address: 192.168.1.60
+    volumes:
+      - ./containers/samba/shared:/compartilhado
+    depends_on:
+      - ldap
     restart: unless-stopped
 
-  testes:
-    build:
-      context: ./scripts
-    container_name: testes
+  ftp:
+    build: ./containers/ftp
+    container_name: ftp_server
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.1.70
+    ports:
+      - "21:21"
+      - "20:20"
+      - "10090-10100:10090-10100"
+    restart: unless-stopped
+
+  web:
+    build: ./containers/webserver
+    container_name: web_server
+    networks:
+      rede_servidores:
+        ipv4_address: 192.168.1.80
+    ports:
+      - "8080:80"
+    depends_on:
+      - router
+    restart: unless-stopped
+
+  ubuntu-test:
+    build: ./containers/ubuntu-test
+    container_name: ubuntu_test
     cap_add:
       - NET_ADMIN
-    tty: true
-    volumes:
-      - ./scripts:/scripts
-      - ./logs:/resultados
-    dns:
-      - 192.168.1.10
     networks:
       rede_clientes:
-        ipv4_address: 192.168.2.200
+        ipv4_address: 192.168.2.3
+      rede_servidores: {}  # Adiciona também a rede dos serviços!
+    depends_on:
+      - router
     restart: unless-stopped
+
 
 networks:
   rede_servidores:
@@ -131,3 +123,4 @@ networks:
     ipam:
       config:
         - subnet: 192.168.2.0/24
+
