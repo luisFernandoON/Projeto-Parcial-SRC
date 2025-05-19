@@ -1,171 +1,110 @@
-# 🚀 FASTFOOD - Infraestrutura de Rede com Docker
+# 🌐 Projeto FASTFOOD - Infraestrutura de Rede com Docker
 
-Projeto desenvolvido para a disciplina **Serviços de Redes de Computadores** – 5º Período – IF Goiano.
+Este projeto simula uma infraestrutura corporativa completa de rede para a empresa fictícia **Fastfood Corp**, utilizando **Docker** para orquestrar os serviços em ambientes isolados e replicáveis.
 
-Este projeto simula a infraestrutura de TI de uma rede de fast foods utilizando **Docker**, com serviços de rede essenciais distribuídos em sub-redes separadas, interligadas por um container roteador.
-
----
-
-## 🎯 Objetivo
-
-Implementar uma infraestrutura de rede corporativa com os seguintes serviços:
-
-- DNS (Bind9)
-- DHCP (ISC DHCP)
-- FTP (vsftpd)
-- Firewall (iptables)
-- LDAP (OpenLDAP)
-- SAMBA
-- Web Server (Apache)
-- Roteador com NAT e regras de roteamento
 
 ---
 
-## 📂 Estrutura de Diretórios
+## 📦 Serviços Implementados
+
+| Serviço   | IP             | Porta(s)           | Descrição                                         |
+|-----------|----------------|--------------------|--------------------------------------------------|
+| Router    | 192.168.1.254 / 192.168.2.254 | -              | Roteamento entre as redes                        |
+| DHCP      | 192.168.2.2    | -                  | Concede IP aos clientes                          |
+| DNS       | 192.168.1.10   | 53 (TCP/UDP)       | Resolução de nomes e zona reversa                |
+| Firewall  | 192.168.1.5    | -                  | Regras de filtragem com iptables                 |
+| LDAP      | 192.168.1.50   | 389                | Diretório com base de usuários e grupos          |
+| SAMBA     | 192.168.1.60   | 445                | Compartilhamento de arquivos                     |
+| FTP       | 192.168.1.70   | 20-21, 10090–10100 | Acesso a arquivos por protocolo FTP              |
+| Web       | 192.168.1.80   | 80 (via 8080)      | Página da empresa no Apache                      |
+| Cliente   | 192.168.2.3    | -                  | Container de teste com ferramentas de validação  |
+
+---
+
+## 🖥️ Estrutura de Diretórios
 
 ```
-Projeto-Parcial-SRC/
+📁 projeto-fastfood/
 ├── containers/
 │   ├── dhcp/
 │   ├── dns/
+│   ├── firewall/
 │   ├── ftp/
 │   ├── ldap/
 │   ├── router/
 │   ├── samba/
+│   ├── ubuntu-test/
 │   └── webserver/
-├── scripts/
-│   ├── testes.sh
-│   └── outros scripts
-├── logs/
 ├── docker-compose.yml
-├── README.md
-└── Makefile
+└── README.md
 ```
 
 ---
 
-## ⚙️ Requisitos
+## 🚀 Como Rodar no Linux
 
-- Docker
-- Docker Compose
-- Git
-- Linux (recomendado: Ubuntu 22.04+)
-
----
-
-## 🚀 Como Executar
-
+1. **Clone o repositório:**
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/Projeto-Parcial-SRC.git
-cd Projeto-Parcial-SRC
-
-# 2. Suba a infraestrutura
-sudo docker-compose up -d --build
-
-# 3. (Opcional) Execute testes automatizados
-sudo docker exec -it testes /scripts/testes.sh
+git clone https://github.com/seuusuario/projeto-fastfood.git
+cd projeto-fastfood
 ```
 
----
-
-## 🌐 Topologia da Rede
-
-| Rede             | Sub-rede         | Serviços                                             |
-|------------------|------------------|------------------------------------------------------|
-| rede_servidores  | 192.168.1.0/24   | DNS, FTP, Web, LDAP, SAMBA                          |
-| rede_clientes    | 192.168.2.0/24   | Cliente com DHCP, container de testes               |
-
----
-
-## 🧪 Serviços e Testes
-
-### DNS - Bind9
-- IP: 192.168.1.10
-- Testes:
-  ```bash
-  dig @192.168.1.10 ftp.fastfood.local +short
-  dig -x 192.168.1.50 @192.168.1.10 +short
-  ```
-
-### DHCP - ISC DHCP
-- IP: 192.168.2.10
-- Range: 192.168.2.100–192.168.2.200
-- Gateway: 192.168.2.254
-- Testes:
-  ```bash
-  sudo docker exec -it ubuntu-test dhclient -v
-  sudo docker exec -it ubuntu-test ip a
-  ```
-
-### FTP - vsftpd
-- IP: 192.168.1.20
-- Portas: 21, 30000–30009
-
-### Web Server - Apache
-- IP: 192.168.1.50
-- Porta: 80
-- Acesso via: http://localhost:8080
-
-### LDAP - OpenLDAP
-- IP: 192.168.1.30
-- Porta: 389
-- Testes:
-  ```bash
-  ldapsearch -x -H ldap://192.168.1.30 -b dc=fastfood,dc=local
-  ```
-
-### SAMBA
-- IP: 192.168.1.40
-- Compartilhamento: /samba/public
-- Teste:
-  ```bash
-  smbclient //192.168.1.40/public -U usuario
-  ```
-
-### Roteador
-- IPs: 192.168.1.254 (servidores), 192.168.2.254 (clientes)
-- Funções: NAT, roteamento, firewall via iptables
-
----
-
-## ✅ Testes Automatizados
-
-Execute:
+2. **Suba os serviços:**
 ```bash
-make test-run
+sudo docker compose up -d --build
 ```
-Ou manualmente:
+
+3. **Acesse o cliente de teste:**
 ```bash
-sudo docker-compose run --rm testes
+sudo docker exec -it ubuntu_test bash
 ```
 
-Verificações realizadas:
-- Rota padrão
-- Ping ao gateway
-- DNS direto e reverso
-- Acesso a serviços LDAP, FTP e Web
+4. **Execute os testes:**
+```bash
+/root/testes.sh
+```
 
 ---
 
-## 🖥️ Esquema de Redes:
+## ✅ Testes Validados
 
-![Imagem do WhatsApp de 2025-05-13 à(s) 16 23 40_6775236e](https://github.com/user-attachments/assets/680e30f9-fccc-4ae5-af8f-b7eb90e22fb4)
+O script `/root/testes.sh` realiza:
 
-
----
-
-## 👨‍💻 Autores
-
-- Luis Fernando
-- Ítalo
-- Thiago Silva
-
-**Professor Orientador:** Roitier Campos Gonçalves
+- Roteamento entre redes
+- Resolução de nomes (DNS direto e reverso)
+- Acesso ao site (Apache)
+- Consulta ao diretório LDAP
+- Login ao servidor FTP
+- Conexão ao compartilhamento Samba
+- Resposta do Firewall
+- Diagnóstico geral de rede
 
 ---
 
-## 📄 Licença
+## 🔐 Usuários Padrão (para testes)
 
-Este projeto está sob a licença MIT.
+- **Usuário:** `admin`
+- **Senha:** `admin`
 
+---
+
+## 🧪 Requisitos
+
+- Docker Engine `>= 20.10`
+- Docker Compose v2
+- Sistema Linux ou Docker Desktop no Windows
+- Acesso sudo para subir os containers
+
+---
+
+## 👥 Créditos
+
+Desenvolvido por Thiago  
+Infraestrutura para a disciplina de **Serviços de Redes de Computadores - 2025/1**  
+IF Goiano - Ceres
+
+---
+
+## 📬 Licença
+
+Este projeto é de uso educacional e livre para estudo e colaboração.
